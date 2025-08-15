@@ -73,11 +73,42 @@ export default function App() {
       }
 
       // n8n Chat Trigger typically returns the AI's response directly
-      const aiResponseData = await response.json();
+      const responseData = await response.text(); // Get as text first to debug
+      console.log('Raw response from n8n:', responseData);
       
-      // The response structure might vary. Adjust this based on your n8n workflow's output.
-      // We are expecting a structure like: { "text": "AI response here" }
-      const aiMessageText = aiResponseData.text || "Sorry, I didn't get a valid response.";
+      let aiMessageText = "Sorry, I didn't get a valid response.";
+      
+      try {
+        // Try to parse as JSON
+        const aiResponseData = JSON.parse(responseData);
+        console.log('Parsed response:', aiResponseData);
+        
+        // n8n Chat Trigger might return the response in different formats:
+        // 1. Direct text response
+        // 2. { "text": "response" }
+        // 3. { "output": "response" }
+        // 4. { "message": "response" }
+        // 5. { "response": "response" }
+        
+        if (typeof aiResponseData === 'string') {
+          aiMessageText = aiResponseData;
+        } else if (aiResponseData.text) {
+          aiMessageText = aiResponseData.text;
+        } else if (aiResponseData.output) {
+          aiMessageText = aiResponseData.output;
+        } else if (aiResponseData.message) {
+          aiMessageText = aiResponseData.message;
+        } else if (aiResponseData.response) {
+          aiMessageText = aiResponseData.response;
+        } else {
+          console.error('Unknown response format:', aiResponseData);
+        }
+      } catch (parseError) {
+        // If it's not JSON, use the text directly
+        if (responseData && responseData.trim()) {
+          aiMessageText = responseData;
+        }
+      }
 
       // Create a new message object for the AI's response
       const aiMessage = {
@@ -95,7 +126,7 @@ export default function App() {
       // Create an error message to display in the chat
        const errorMessage = {
         id: Date.now() + 1,
-        text: "Error: Could not connect to the AI. Please try again.",
+        text: `Error: Could not connect to the AI. ${error.message}`,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         sent: false,
         isError: true, // Custom property for styling
