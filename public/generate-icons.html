@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Generate PWA Icons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .canvas-container {
+            margin: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #dc2626;
+        }
+        .instructions {
+            max-width: 600px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        <h1>PWA Icon Generator</h1>
+        <p>This page generates the required icons for your AI Chat app. Click the buttons below to download each icon.</p>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="canvas192" width="192" height="192"></canvas>
+    </div>
+    <button onclick="downloadIcon(192)">Download icon-192.png</button>
+
+    <div class="canvas-container">
+        <canvas id="canvas512" width="512" height="512"></canvas>
+    </div>
+    <button onclick="downloadIcon(512)">Download icon-512.png</button>
+
+    <script>
+        function drawIcon(size) {
+            const canvas = document.getElementById(`canvas${size}`);
+            const ctx = canvas.getContext('2d');
+            
+            // Background
+            ctx.fillStyle = '#1f2937';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Scale for icon
+            const scale = size / 24;
+            ctx.save();
+            ctx.scale(scale, scale);
+            
+            // Draw chat bubble
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // Chat bubble path
+            ctx.beginPath();
+            ctx.moveTo(19, 2);
+            ctx.lineTo(5, 2);
+            ctx.quadraticCurveTo(2, 2, 2, 5);
+            ctx.lineTo(2, 15);
+            ctx.quadraticCurveTo(2, 18, 5, 18);
+            ctx.lineTo(7, 18);
+            ctx.lineTo(4, 21);
+            ctx.lineTo(4, 18);
+            ctx.lineTo(19, 18);
+            ctx.quadraticCurveTo(22, 18, 22, 15);
+            ctx.lineTo(22, 5);
+            ctx.quadraticCurveTo(22, 2, 19, 2);
+            ctx.closePath();
+            ctx.stroke();
+            
+            // Draw dots
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(9, 10, 1, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(12, 10, 1, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(15, 10, 1, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        function downloadIcon(size) {
+            const canvas = document.getElementById(`canvas${size}`);
+            const link = document.createElement('a');
+            link.download = `icon-${size}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // Draw icons on load
+        drawIcon(192);
+        drawIcon(512);
+    </script>
+</body>
+</html>
