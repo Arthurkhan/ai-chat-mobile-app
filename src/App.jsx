@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Smile, Send } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
+import ReactMarkdown from 'react-markdown';
 
 // Main App Component
 export default function App() {
@@ -184,7 +185,7 @@ export default function App() {
   }, [showEmojiPicker]);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900 text-white max-w-md mx-auto font-sans">
+    <div className="flex flex-col h-screen overflow-hidden pt-8 pb-14 bg-gray-900 text-white max-w-md mx-auto font-sans">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-gray-800 border-b border-gray-700">
         <h1 className="text-lg font-semibold">AI Assistant</h1>
@@ -199,7 +200,7 @@ export default function App() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-4">
         <div className="text-center text-gray-500 text-xs mb-4">
             This is the beginning of your conversation.
         </div>
@@ -218,7 +219,52 @@ export default function App() {
                   : 'bg-gray-800 text-gray-200 rounded-bl-none'
               }`}
             >
-              <p className="text-sm">{message.text}</p>
+              <div className="text-sm markdown-content">
+                <ReactMarkdown
+                  components={{
+                    a: ({ node, ...props }) => (
+                      <a {...props} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline" />
+                    ),
+                    p: ({ node, ...props }) => (
+                      <p {...props} className="mb-2 last:mb-0" />
+                    ),
+                    strong: ({ node, ...props }) => (
+                      <strong {...props} className="font-bold" />
+                    ),
+                    em: ({ node, ...props }) => (
+                      <em {...props} className="italic" />
+                    ),
+                    code: ({ node, inline, ...props }) => (
+                      inline 
+                        ? <code {...props} className="bg-gray-700 px-1 py-0.5 rounded text-xs" />
+                        : <code {...props} className="block bg-gray-700 p-2 rounded text-xs overflow-x-auto" />
+                    ),
+                    ul: ({ node, ...props }) => (
+                      <ul {...props} className="list-disc list-inside ml-2" />
+                    ),
+                    ol: ({ node, ...props }) => (
+                      <ol {...props} className="list-decimal list-inside ml-2" />
+                    ),
+                    li: ({ node, ...props }) => (
+                      <li {...props} className="mb-1" />
+                    ),
+                    h1: ({ node, ...props }) => (
+                      <h1 {...props} className="text-lg font-bold mb-2" />
+                    ),
+                    h2: ({ node, ...props }) => (
+                      <h2 {...props} className="text-base font-bold mb-2" />
+                    ),
+                    h3: ({ node, ...props }) => (
+                      <h3 {...props} className="text-sm font-bold mb-1" />
+                    ),
+                    blockquote: ({ node, ...props }) => (
+                      <blockquote {...props} className="border-l-4 border-gray-600 pl-3 italic" />
+                    ),
+                  }}
+                >
+                  {message.text}
+                </ReactMarkdown>
+              </div>
               <p className={`text-xs mt-1 text-right ${message.sent ? 'text-red-200' : 'text-gray-500'}`}>
                 {message.time}
               </p>
@@ -292,11 +338,6 @@ export default function App() {
           >
             <Send size={24} />
           </button>
-        </div>
-        
-        {/* Bottom indicator */}
-        <div className="mt-2 flex justify-center">
-          <div className="w-32 h-1 bg-gray-600 rounded-full"></div>
         </div>
       </div>
     </div>
