@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Smile, Paperclip, Camera, Send } from 'lucide-react';
+import { Smile, Send } from 'lucide-react';
 
 // Main App Component
 export default function App() {
@@ -269,14 +269,6 @@ export default function App() {
               className="flex-1 bg-transparent outline-none text-sm placeholder-gray-400"
               disabled={isLoading} // Disable input while waiting for a response
             />
-            <div className="flex gap-2 ml-2">
-              <button className="text-gray-600 cursor-not-allowed" disabled>
-                <Paperclip size={20} />
-              </button>
-              <button className="text-gray-600 cursor-not-allowed" disabled>
-                <Camera size={20} />
-              </button>
-            </div>
           </div>
           
           <button 
