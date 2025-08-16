@@ -182,7 +182,14 @@ export default function App() {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-gray-800 border-b border-gray-700">
         <h1 className="text-lg font-semibold">AI Assistant</h1>
-        {/* You can add more header elements here if needed */}
+        <a
+          href="https://app.todoist.com/app/today"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-4 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-full transition-colors"
+        >
+          Todoist
+        </a>
       </div>
 
       {/* Messages */}
