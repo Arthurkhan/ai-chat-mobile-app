@@ -12,7 +12,8 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "lucide-react": "^0.263.1"
+    "lucide-react": "^0.263.1",
+    "emoji-picker-react": "^4.5.16"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.3",
