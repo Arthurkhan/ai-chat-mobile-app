@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Smile, Send } from 'lucide-react';
+import EmojiPicker from 'emoji-picker-react';
 
 // Main App Component
 export default function App() {
@@ -22,13 +23,6 @@ export default function App() {
   // The URL for your n8n chat webhook
   const N8N_WEBHOOK_URL = 'https://n8n.srv795148.hstgr.cloud/webhook/eefc0026-c2e2-445c-9fef-0cab5b262745/chat';
 
-  // Common emojis - easy to expand
-  const emojis = [
-    '😀', '😂', '🥰', '😎', '🤔', '👍', '👎', '❤️',
-    '🎉', '🔥', '✨', '💯', '😅', '😊', '🙏', '👋',
-    '😭', '😡', '🤗', '💪', '🎯', '🚀', '💡', '✅'
-  ];
-
   /**
    * Scrolls the chat view to the latest message.
    */
@@ -44,11 +38,11 @@ export default function App() {
   /**
    * Handles emoji selection
    */
-  const handleEmojiClick = (emoji) => {
+  const handleEmojiClick = (emojiData) => {
     const input = inputRef.current;
     const start = input.selectionStart;
     const end = input.selectionEnd;
-    const newText = inputText.substring(0, start) + emoji + inputText.substring(end);
+    const newText = inputText.substring(0, start) + emojiData.emoji + inputText.substring(end);
     
     setInputText(newText);
     setShowEmojiPicker(false);
@@ -56,7 +50,7 @@ export default function App() {
     // Focus back on input and set cursor position after emoji
     setTimeout(() => {
       input.focus();
-      input.selectionStart = input.selectionEnd = start + emoji.length;
+      input.selectionStart = input.selectionEnd = start + emojiData.emoji.length;
     }, 0);
   };
 
@@ -177,6 +171,18 @@ export default function App() {
     }
   };
 
+  // Click outside handler for emoji picker
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (showEmojiPicker && !e.target.closest('.emoji-picker-container')) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showEmojiPicker]);
+
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white max-w-md mx-auto font-sans">
       {/* Header */}
@@ -241,25 +247,27 @@ export default function App() {
       <div className="px-4 py-3 bg-gray-800 border-t border-gray-700 relative">
         {/* Emoji Picker */}
         {showEmojiPicker && (
-          <div className="absolute bottom-full left-4 mb-2 bg-gray-700 rounded-lg p-3 shadow-lg">
-            <div className="grid grid-cols-8 gap-2">
-              {emojis.map((emoji, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleEmojiClick(emoji)}
-                  className="text-2xl hover:bg-gray-600 rounded p-1 transition-colors"
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
+          <div className="emoji-picker-container absolute bottom-full left-0 mb-2">
+            <EmojiPicker
+              onEmojiClick={handleEmojiClick}
+              theme="dark"
+              searchPlaceHolder="Search emoji..."
+              width={320}
+              height={400}
+              previewConfig={{ showPreview: false }}
+              skinTonesDisabled
+              emojiStyle="native"
+            />
           </div>
         )}
 
         <div className="flex items-center gap-3">
           <button 
             className="text-red-500 hover:text-red-400 transition-colors"
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowEmojiPicker(!showEmojiPicker);
+            }}
           >
             <Smile size={24} />
           </button>
@@ -272,7 +280,6 @@ export default function App() {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyPress={handleKeyPress}
-              onFocus={() => setShowEmojiPicker(false)}
               className="flex-1 bg-transparent outline-none text-sm placeholder-gray-400"
               disabled={isLoading} // Disable input while waiting for a response
             />
