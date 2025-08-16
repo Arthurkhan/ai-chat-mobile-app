@@ -9,14 +9,25 @@ export default function App() {
   const [inputText, setInputText] = useState('');
   // State to track if the AI is currently typing
   const [isLoading, setIsLoading] = useState(false);
+  // State for emoji picker
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   // A ref to the end of the messages list to enable auto-scrolling
   const messagesEndRef = useRef(null);
+  // Ref for the input field to manage cursor position
+  const inputRef = useRef(null);
   // Session ID for better memory management
   const sessionId = useRef(`session-${Date.now()}`).current;
 
   // The URL for your n8n chat webhook
   const N8N_WEBHOOK_URL = 'https://n8n.srv795148.hstgr.cloud/webhook/eefc0026-c2e2-445c-9fef-0cab5b262745/chat';
+
+  // Common emojis - easy to expand
+  const emojis = [
+    '😀', '😂', '🥰', '😎', '🤔', '👍', '👎', '❤️',
+    '🎉', '🔥', '✨', '💯', '😅', '😊', '🙏', '👋',
+    '😭', '😡', '🤗', '💪', '🎯', '🚀', '💡', '✅'
+  ];
 
   /**
    * Scrolls the chat view to the latest message.
@@ -29,6 +40,25 @@ export default function App() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
+
+  /**
+   * Handles emoji selection
+   */
+  const handleEmojiClick = (emoji) => {
+    const input = inputRef.current;
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    const newText = inputText.substring(0, start) + emoji + inputText.substring(end);
+    
+    setInputText(newText);
+    setShowEmojiPicker(false);
+    
+    // Focus back on input and set cursor position after emoji
+    setTimeout(() => {
+      input.focus();
+      input.selectionStart = input.selectionEnd = start + emoji.length;
+    }, 0);
+  };
 
   /**
    * Handles sending the message to the n8n webhook.
@@ -201,27 +231,49 @@ export default function App() {
       </div>
 
       {/* Input Area */}
-      <div className="px-4 py-3 bg-gray-800 border-t border-gray-700">
+      <div className="px-4 py-3 bg-gray-800 border-t border-gray-700 relative">
+        {/* Emoji Picker */}
+        {showEmojiPicker && (
+          <div className="absolute bottom-full left-4 mb-2 bg-gray-700 rounded-lg p-3 shadow-lg">
+            <div className="grid grid-cols-8 gap-2">
+              {emojis.map((emoji, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleEmojiClick(emoji)}
+                  className="text-2xl hover:bg-gray-600 rounded p-1 transition-colors"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center gap-3">
-          <button className="text-red-500">
+          <button 
+            className="text-red-500 hover:text-red-400 transition-colors"
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+          >
             <Smile size={24} />
           </button>
           
           <div className="flex-1 bg-gray-700 rounded-full px-4 py-2 flex items-center">
             <input
+              ref={inputRef}
               type="text"
               placeholder="Type a message..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyPress={handleKeyPress}
+              onFocus={() => setShowEmojiPicker(false)}
               className="flex-1 bg-transparent outline-none text-sm placeholder-gray-400"
               disabled={isLoading} // Disable input while waiting for a response
             />
             <div className="flex gap-2 ml-2">
-              <button className="text-gray-400">
+              <button className="text-gray-600 cursor-not-allowed" disabled>
                 <Paperclip size={20} />
               </button>
-              <button className="text-gray-400">
+              <button className="text-gray-600 cursor-not-allowed" disabled>
                 <Camera size={20} />
               </button>
             </div>
